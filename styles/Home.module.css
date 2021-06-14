@@ -46,8 +46,8 @@
 
 .title {
   margin: 0;
-  line-height: 1.15;
-  font-size: 4rem;
+  line-height: 2;
+  font-size: 2rem;
 }
 
 .title,
@@ -68,7 +68,10 @@
   font-family: Menlo, Monaco, Lucida Console, Liberation Mono, DejaVu Sans Mono,
     Bitstream Vera Sans Mono, Courier New, monospace;
 }
-
+.ctas button {
+    display: inline-block;
+    margin: 0 10px;
+}
 .grid {
   display: flex;
   align-items: center;

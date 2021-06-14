@@ -3,7 +3,6 @@ import Head from 'next/head'
 import { format } from "date-fns";
 import { toBlob } from "html-to-image";
 import { jsonToCSV } from "react-papaparse";
-import Blob  from 'cross-blob';
 import Image from 'next/image'
 import { data } from "../src/data"
 import styles from '../styles/Home.module.css'
@@ -41,7 +40,6 @@ export default function Home() {
             setPngSuccess(false)
             toBlob(document.getElementById("grid"),{backgroundColor: 'white'})
             .then((dataBlob) => {
-      
               writeToCB(dataBlob, "image/png")
             })
             .then(() => {
@@ -55,7 +53,7 @@ export default function Home() {
         }
     }
     
-    const onPrintToPng2 = e => {
+    const onPrintToCSV = e => {
         e.preventDefault();
         // const elem = document.createElement('div')
         // elem.id = "table";
@@ -105,7 +103,7 @@ export default function Home() {
         setPngSuccess(false)
     };
     
-    const resetCsvBtn2 = () => {
+    const resetCsvBtn = () => {
         setCsvInProgress(false)
         setCsvSuccess(false)
     };
@@ -120,9 +118,10 @@ export default function Home() {
 
       <main className={styles.main}>
         <h1 className={styles.title}>
-          Clipboard permission
+          Clipboard API example
         </h1>
       
+      <div className={styles.ctas}>
         <button
           className="btn btn-primary to-png"
           onClick={onPrintToPng}
@@ -150,7 +149,7 @@ export default function Home() {
           
         <button
           className="btn btn-primary to-png"
-          onClick={onPrintToPng2}
+          onClick={onPrintToCSV}
         >
           {csvInProgress && (
             <Image
@@ -172,7 +171,7 @@ export default function Home() {
           )}
           Export as CSV
         </button>
-
+    </div>
           <div id="grid">
             <p className={styles.description}>
               Get started by editing{' '}
