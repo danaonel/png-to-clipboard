@@ -21,7 +21,6 @@ export default function Home() {
             
             // Listen for changes to the permission state
             permissionStatus.onchange = () => {
-              // console.log("Clipboard access",permissionStatus.state);
               if (permissionStatus.state === "granted") setCBAccess(true)
             };
             
