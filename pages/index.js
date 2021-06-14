@@ -2,13 +2,18 @@ import React, { useState, useEffect } from 'react';
 import Head from 'next/head'
 import { format } from "date-fns";
 import { toBlob } from "html-to-image";
+import { jsonToCSV } from "react-papaparse";
+import Blob  from 'cross-blob';
 import Image from 'next/image'
+import { data } from "../src/data"
 import styles from '../styles/Home.module.css'
 
 export default function Home() {
     const [cbAccess, setCBAccess] = useState(null)
     const [pngInProgress, setPngInProgress] = useState(false)
     const [pngSuccess, setPngSuccess] = useState(false)
+    const [csvInProgress, setCsvInProgress] = useState(false)
+    const [csvSuccess, setCsvSuccess] = useState(false)
     useEffect( async () => {
         const queryOpts = { name: 'clipboard-write', allowWithoutGesture: true };
         if ( navigator && navigator.permissions ) {
@@ -37,7 +42,7 @@ export default function Home() {
             toBlob(document.getElementById("grid"),{backgroundColor: 'white'})
             .then((dataBlob) => {
       
-              writeToCB(dataBlob)
+              writeToCB(dataBlob, "image/png")
             })
             .then(() => {
                 setPngInProgress(false)
@@ -50,15 +55,46 @@ export default function Home() {
         }
     }
     
-    const writeToCB = async (dataBlob) => {
+    const onPrintToPng2 = e => {
+        e.preventDefault();
+        // const elem = document.createElement('div')
+        // elem.id = "table";
+        // elem.className = {styles.card};
+        //
+        // for (var i = 0; i < data.length; i++) {
+        //   const temp = document.createElement('p');
+        //   temp.innerHTML = data[i].name + ' ' + data[i].email;
+        //   elem.appendChild(temp);
+        // }
+        // console.log("ELEM", elem)
+        if ( cbAccess ) {
+            setCsvInProgress(true)
+            setCsvSuccess(false)
+            writeToCB(jsonToCSV(data), "text/csv")  
+        } else {
+          alert("You do not have clipboard access")
+        }
+    }
+    
+    const writeToCB = async (dataBlob, type) => {
         const ClipboardItem = window.ClipboardItem
-        const cbi = new ClipboardItem({
-          'image/png': dataBlob
-        });
+        const cbi = type === "text/csv" ?
+            dataBlob
+            : 
+            new ClipboardItem({
+              [`${type}`]: dataBlob
+            });
 
         try {
-          await navigator.clipboard.write([cbi]);
-          console.log(`copied image to clipboard`);
+          if ( type === "text/csv" ) {
+              await navigator.clipboard.writeText([cbi]);
+                setCsvInProgress(false)
+                setCsvSuccess(true)
+              console.log(`copied csv to clipboard`);
+          } else {
+              await navigator.clipboard.write([cbi]);
+              console.log(`copied image to clipboard`);
+          }
         } catch (error) {
           console.error(error);
         }
@@ -67,6 +103,11 @@ export default function Home() {
     const resetPngBtn = () => {
         setPngInProgress(false)
         setPngSuccess(false)
+    };
+    
+    const resetCsvBtn2 = () => {
+        setCsvInProgress(false)
+        setCsvSuccess(false)
     };
   
   return (
@@ -105,6 +146,31 @@ export default function Home() {
             />
           )}
           Export as PNG
+        </button>
+          
+        <button
+          className="btn btn-primary to-png"
+          onClick={onPrintToPng2}
+        >
+          {csvInProgress && (
+            <Image
+              src="/exporting.gif"
+              width={20}
+              height={20}
+              alt="CSV in progress"
+              className="gif-icon"
+            />
+          )}
+          {csvSuccess && (
+            <Image
+              src="/success.png"
+              width={20}
+              height={20}
+              alt="CSV is copied to clipboard"
+              className="gif-icon"
+            />
+          )}
+          Export as CSV
         </button>
 
           <div id="grid">
